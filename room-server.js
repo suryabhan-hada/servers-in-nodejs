@@ -14,6 +14,7 @@ app.get('/',function(req,res){
 
 io.sockets.on("connection",function(client){
 	client.on('send-message to server',function(data){
+		console.log("the id of client socket is "+client.room);
 		io.sockets.emit('message to client',data);
 	});
 });
