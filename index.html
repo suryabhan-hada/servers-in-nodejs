@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> test chat server  </title>  
+    <style >
+        #chat{
+            height:500px;
+        }
+        #contentwrap
+        {
+            display: none;
+        }
+        #chatwrap
+        {
+            float: left;
+            border: 1px #000 solid;
+        }
+        .Error-msg
+        {
+            color : red;
+        }
+        .pvt-msg
+        {
+            font-style:italic;
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+  
+    <div id="Nickwrap">
+        <p>Enter your Nickname </p>
+        <p id=NickError></p>
+        <form id="Nicknameform">
+            <input type="text" id="Nickname"/>
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+    
+    <div id="contentwrap">
+        <div id="chatwrap">
+            <div id="chat"></div>
+            <form id="send-message">
+                <input type="text" id="Message"></input>
+                <input type="submit" value="Submit"></input>
+            </form>  
+            
+        </div>
+        <div id="users"></div>
+    </div>
+    
+    <script  src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script  src="/socket.io/socket.io.js"></script>
+    <script>
+        jQuery(function($){
+            var socket=io.connect();
+            var $messageform= $('#send-message');
+            var $messagebox= $('#Message');
+            var $chat= $('#chat');
+            var $nicknamebox= $('#Nickname');
+            var $nickform= $('#Nicknameform');
+            var $nickerror= $('#NickError');
+            var $users= $('#users');
+            
+            $nickform.submit(function(e) {
+               e.preventDefault();
+               socket.emit('user-name to server',$nicknamebox.val(),function(data){
+                   if(data)
+                   {
+                       $('#Nickwrap').hide();
+                       $('#contentwrap').show();
+                   }
+                   else
+                   {
+                       $nickerror.html('user name is already taken , try again !!!!');
+                   }
+                });
+                $nicknamebox.val('');
+            });
+            
+            socket.on('usernames',function(data) {
+                var st='';
+                for(i=0;i<data.length;i++)
+                {
+                    st=st+data[i]+'<br/>';
+                }
+                $users.html(st);
+            });
+            
+            $messageform.submit(function(e){
+                e.preventDefault();
+                socket.emit('message to server',$messagebox.val(),function(data) {
+                    $chat.append('<span class="Error-msg"><b>'+data+ "<br/>");
+                });
+                $messagebox.val('');
+                
+            });
+            
+            socket.on('message to client',function(data){
+                $chat.append("<b>"+data.nick+ ": </b>"+data.msg+ "<br/>");
+            });
+            
+            socket.on('pvt message to client',function(data){
+                $chat.append('<span class="pvt-msg"><b>'+data.nick+ ": </b>"+data.msg+ "<br/>");
+            });
+            
+        });
+    </script>
+    
+</body>
+    
+</html>
