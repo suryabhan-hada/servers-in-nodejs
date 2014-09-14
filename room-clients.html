@@ -5,15 +5,48 @@
         <title> 
              hey this is chat using rooms 
         </title>
+        <style>
+            
+            #chat{
+                height:300px;
+            }
+            
+        </style>
         
     </head>
     
     <body>
         
         <form id="chatform">
+            <div id="chat"></div>
             <input type="text" id="chatbox"/>
             <input type="submit" value="Submit"/>
         </form>
+        
+        <script  src="https://code.jquery.com/jquery-latest.min.js"></script>
+        <script  src="/socket.io/socket.io.js"></script>
+         <script>
+            
+            jQuery(function($){
+                var $chatdiv=$("#chat");
+                var $chatform=$("#chatform");
+                var $chatbox=$("#chatbox");
+                
+                var server_socket=io.connect();
+                
+                $chatform.submit(function(e){
+                    e.preventDefault();
+                    server_socket.emit('send-message to server',$chatbox.val());
+                    $chatbox.val('');
+                });
+                
+                server_socket.on('message to client',function(data){
+                    $chatdiv.append(data,"</br>");
+                });
+                
+            });
+            
+        </script>
         
     </body>
     

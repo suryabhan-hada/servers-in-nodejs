@@ -12,4 +12,10 @@ app.get('/',function(req,res){
 	//res.write("hello");
 });
 
+io.sockets.on("connection",function(client){
+	client.on('send-message to server',function(data){
+		io.sockets.emit('message to client',data);
+	});
+});
+
 
